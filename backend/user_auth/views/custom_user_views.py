@@ -56,7 +56,6 @@ class LogoutView(generics.GenericAPIView):
 
 
 class UserListView(generics.ListAPIView):
-    # authentication_classes = (TokenAuthentication,)
     authentication_classes = []
     permission_classes = [AllowAny]
     queryset = CustomUser.objects.all()
