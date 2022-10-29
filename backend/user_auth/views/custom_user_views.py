@@ -6,7 +6,7 @@ from rest_framework import filters
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from user_auth.serializers import (
     CustomUserSerializer, CustomerSerializer, SupplierSerializer, StaffSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer)
 from user_auth.models.custom_user import CustomUser
@@ -57,8 +57,8 @@ class LogoutView(generics.GenericAPIView):
 
 class UserListView(generics.ListAPIView):
     # authentication_classes = (TokenAuthentication,)
-    # authentication_classes = []
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     filter_backends = [DjangoFilterBackend,

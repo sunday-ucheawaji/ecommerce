@@ -1,4 +1,3 @@
-from re import A
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
@@ -30,7 +29,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         max_length=20, choices=USER_CHOICE, default="customer")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "phone"]
+    REQUIRED_FIELDS = ["first_name", "last_name"]
 
     objects = CustomUserManager()
 
