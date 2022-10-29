@@ -1,18 +1,21 @@
+from django.contrib.auth import logout
 from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import generics, status
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, get_authorization_header
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from user_auth.serializers import (
     CustomUserSerializer, CustomerSerializer, SupplierSerializer, StaffSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer)
 from user_auth.models.custom_user import CustomUser
+from user_auth.models.blacklist import BlackList
 from user_auth.jwt_authentication import JWTAuthentication
-
-#  Login based on PyJWT
+from datetime import datetime, timedelta
+from django.conf import settings
 
 
 class RegisterView(generics.CreateAPIView):
@@ -38,21 +41,13 @@ class LoginView(generics.GenericAPIView):
         return Response({"msg": "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class LogoutView(generics.GenericAPIView):
-    authentication_classes = []
-    permission_classes = []
-    serializer_class = LogoutSerializer
-    queryset = CustomUser.objects.all()
-
-    def get(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        user = authenticate(email=email, password=password)
-        if user is not None:
-            serializer = self.serializer_class(user)
-            print("user", user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"msg": "error"}, status=status.HTTP_401_UNAUTHORIZED)
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    auth_instance = JWTAuthentication()
+    message = auth_instance.authenticate(request, True)
+    return Response(message, status=status.HTTP_200_OK)
 
 
 class UserListView(generics.ListAPIView):
