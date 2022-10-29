@@ -1,0 +1,21 @@
+coverage run manage.py test ; coverage report ; coverage html
+
+https://simpleisbetterthancomplex.com/2015/11/26/package-of-the-week-python-decouple.html  # decouple
+
+https://www.sqlservertutorial.net/sql-server-sample-database/ - database design in use but added supplier
+https://www.mysqltutorial.org/mysql-sample-database.aspx --- mysql
+https://en.wikiversity.org/wiki/Database_Examples/Northwind -- northwind database
+
+https://testdriven.io/blog/django-custom-user-model/  resource for Custom user
+
+
+https://stackoverflow.com/questions/30495979/django-1-8-multiple-custom-user-types#:~:text=First%20of%20all%2C%20you%20cannot,a%20user%20in%20Django%20Admin).
+
+resources for custom design
+
+https://stackabuse.com/recursive-model-relationships-in-django/  resource for recursive relationship
+
+https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models  on_delete
+
+
+https://medium.com/@dibaekhanal101/cannot-import-name-modelname-from-partially-initialized-module-most-likely-due-to-a-circular-ee4c6ae51d7  

@@ -1,0 +1,10 @@
+django>=4.0.0, < 4.1.0
+djangorestframework
+pyyaml
+requests
+django-cors-headers
+coverage==6.5.0
+pyjwt
+django-filter
+python-decouple
+drf-yasg
