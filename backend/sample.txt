@@ -19,3 +19,7 @@ https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-mo
 
 
 https://medium.com/@dibaekhanal101/cannot-import-name-modelname-from-partially-initialized-module-most-likely-due-to-a-circular-ee4c6ae51d7  
+
+https://stackoverflow.com/questions/72434714/how-to-logout-and-destory-token-in-pyjwt-django  JWT logout
+
+https://hevodata.com/learn/sqlite-to-postgresql/#Step1  backup database from sqlite to postgres

@@ -24,7 +24,7 @@ class JWTAuthentication(BaseAuthentication):
         if is_logout is False:
             query_set = BlackList.objects.filter(token=token)
             if len(query_set) > 0:
-                raise exceptions.AuthenticationFailed("Token is blacklisted")
+                raise exceptions.AuthenticationFailed("User not authenticated")
 
         try:
             payload = jwt.decode(
