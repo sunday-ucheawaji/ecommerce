@@ -23,3 +23,19 @@ https://medium.com/@dibaekhanal101/cannot-import-name-modelname-from-partially-i
 https://stackoverflow.com/questions/72434714/how-to-logout-and-destory-token-in-pyjwt-django  JWT logout
 
 https://hevodata.com/learn/sqlite-to-postgresql/#Step1  backup database from sqlite to postgres
+
+
+django>=4.0.0, < 4.1.0
+djangorestframework==3.14.0
+PyYAML==6.0
+requests==2.28.1
+django-cors-headers==3.13.0
+coverage==6.5.0
+PyJWT==2.5.0
+django-filter==22.1
+python-decouple==3.6
+drf-yasg==1.21.4
+psycopg2
+whitenoise==6.2.0
+django-heroku==0.3.1
+gunicorn==20.1.0
