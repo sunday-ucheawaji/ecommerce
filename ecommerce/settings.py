@@ -118,7 +118,6 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 #     }
 # }
 
-# Postgres
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
