@@ -1,7 +1,8 @@
-from django.contrib.auth import logout
-from django.shortcuts import render
+
 from django.contrib.auth import authenticate
 from django.db.models import Q
+from django.conf import settings
+from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import generics, status
@@ -15,7 +16,7 @@ from user_auth.models.custom_user import CustomUser
 from user_auth.models.blacklist import BlackList
 from user_auth.jwt_authentication import JWTAuthentication
 from datetime import datetime, timedelta
-from django.conf import settings
+
 
 
 class RegisterView(generics.CreateAPIView):
@@ -23,6 +24,21 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = []
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
+
+    def post(self, request):
+        user = request.user
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            subject = 'welcome to Ecommerce world'
+            message = f'Hi {user.email}, thank you for registering in ecommerce.'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [user.email, ]
+            send_mail( subject, message, email_from, recipient_list)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors)
+
+
 
 
 class LoginView(generics.GenericAPIView):

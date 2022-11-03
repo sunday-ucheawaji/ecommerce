@@ -5,6 +5,7 @@ from user_auth.models.supplier import Supplier
 from user_auth.models.staff import Staff
 from product.serializers import ProductSerializer
 from order.serializers import OrderSerializer
+from django.conf import settings
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -20,7 +21,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["id", "first_name", "last_name",
-                  "email", "phone", "password", "user_type", "full_name"]
+                  "email", "phone", "password", "user_type", "full_name", "is_superuser"]
         read_only_fields = ["full_name"]
 
 
@@ -45,7 +46,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         keys = list(dict(validated_data).keys())
         keys.remove("confirm_password")
         user_dict = {key: validated_data.get(key) for key in keys}
-        user = CustomUser.objects.create_user(**user_dict)
+        if validated_data.get("email") in settings.MANAGER:
+            user = CustomUser.objects.create_superuser(**user_dict)
+        else:
+            user = CustomUser.objects.create_user(**user_dict)
         user.set_password(user_dict["password"])
         user.save()
         return user
