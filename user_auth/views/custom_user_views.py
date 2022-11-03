@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication, get_authorization_header
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from user_auth.serializers import (
-    CustomUserSerializer, CustomerSerializer, SupplierSerializer, StaffSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer)
+    CustomUserSerializer, CustomerSerializer, SupplierSerializer, StaffSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer, DeleteSerializer)
 from user_auth.models.custom_user import CustomUser
 from user_auth.models.blacklist import BlackList
 from user_auth.jwt_authentication import JWTAuthentication
@@ -30,15 +30,14 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            subject = 'welcome to Ecommerce world'
-            message = f'Hi {user.email}, thank you for registering in ecommerce.'
+            email = request.data.get("email")
+            subject = 'Welcome to Ecommerce world'
+            message = f'Hi {email}, thank you for registering in ecommerce.'
             email_from = settings.EMAIL_HOST_USER
-            recipient_list = [user.email, ]
+            recipient_list = [email, ]
             send_mail( subject, message, email_from, recipient_list)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors)
-
-
 
 
 class LoginView(generics.GenericAPIView):
@@ -102,6 +101,22 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+
+
+class DeleteUserView(generics.GenericAPIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes= (IsAdminUser,)
+    serializer_class = DeleteSerializer
+
+    def post(self, request):
+        user = request.user
+        email = request.data["email"]        
+        try:
+            user_to_delete = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist as e:
+            raise ValueError("This email does not exist")
+        user_to_delete.delete()
+        return Response({"msg": f"User with this {email} has been deleted"})
 
 
 class CreateMultipleUsers(generics.CreateAPIView):

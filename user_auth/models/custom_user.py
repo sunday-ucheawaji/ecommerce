@@ -14,7 +14,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ("customer", "customer"),
         ("supplier", "supplier"),
         ("staff", "staff"),
-        # ("superuser", "superuser")
+        ("superuser", "superuser")
     )
 
     first_name = models.CharField(max_length=30)
