@@ -31,11 +31,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(max_length=30, min_length=4, write_only=True, style={
         "input_type": "password"})
 
-    def validate_user_type(self, value):
-        if value == "superuser":
-            raise serializers.ValidationError(
-                "User type cannot be a superuser")
-        return value
 
     def validate(self, data):
         if data["password"] != data["confirm_password"]:
@@ -46,6 +41,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         keys = list(dict(validated_data).keys())
         keys.remove("confirm_password")
         user_dict = {key: validated_data.get(key) for key in keys}
+        if (validated_data.get("user_type") == "superuser") and (validated_data.get("email") not in settings.MANAGER):
+            raise serializers.ValidationError(f"{validated_data.get('email')} cannot be a superuser")
         if validated_data.get("email") in settings.MANAGER:
             user = CustomUser.objects.create_superuser(**user_dict)
         else:
@@ -139,3 +136,11 @@ class LogoutSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ["email", "token", ]
         read_only_fields = ["email", "token"]
+
+
+class DeleteSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = CustomUser
+        fields = ["email"]

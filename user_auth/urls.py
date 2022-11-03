@@ -24,6 +24,7 @@ urlpatterns = [
     path("staff/", staff_view.StaffListView.as_view(), name="staff list"),
     path("staff/<int:pk>", staff_view.StaffDetailView.as_view(),
          name="staff detail"),
-    path("multiple", custom_user_views.CreateMultipleUsers.as_view(), name="multiple")
+    path("multiple", custom_user_views.CreateMultipleUsers.as_view(), name="multiple"),
+    path("delete", custom_user_views.DeleteUserView.as_view(), name="delete")
 
 ]
