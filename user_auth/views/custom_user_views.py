@@ -104,8 +104,8 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class DeleteUserView(generics.GenericAPIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes= (IsAdminUser,)
+    authentication_classes = ()
+    permission_classes= ()
     serializer_class = DeleteSerializer
 
     def post(self, request):
