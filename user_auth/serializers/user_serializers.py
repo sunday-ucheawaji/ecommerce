@@ -21,7 +21,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["id", "first_name", "last_name",
-                  "email", "phone", "password", "user_type", "full_name", "is_superuser"]
+                  "email", "phone", "password", "user_type", "full_name", "is_superuser", "otp"]
         read_only_fields = ["full_name"]
 
 
@@ -136,6 +136,33 @@ class LogoutSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ["email", "token", ]
         read_only_fields = ["email", "token"]
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    otp = serializers.IntegerField()
+
+    password = serializers.CharField(max_length=30, min_length=4, style={
+                                     "input_type": "password"})
+    confirm_password = serializers.CharField(max_length=30, min_length=4, write_only=True, style={
+        "input_type": "password"})
+    
+    def validate(self, data):
+        if data["password"] != data["confirm_password"]:
+            raise serializers.ValidationError("Passwords do not match")
+        return data
+    
+   
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=30, min_length=4,  style={
+                                     "input_type": "password"})
+    new_password = serializers.CharField(max_length=30, min_length=4,  style={
+        "input_type": "password"})
+    confirm_password = serializers.CharField(max_length=30, min_length=4, write_only=True, style={
+        "input_type": "password"})
 
 
 class DeleteSerializer(serializers.ModelSerializer):

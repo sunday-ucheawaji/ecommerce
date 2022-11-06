@@ -1,5 +1,3 @@
-
-from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.conf import settings
 from django.core.mail import send_mail
@@ -10,59 +8,12 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication, get_authorization_header
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from user_auth.serializers import (
-    CustomUserSerializer, CustomerSerializer, SupplierSerializer, StaffSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer, DeleteSerializer)
+from user_auth.serializers.user_serializers import (
+    CustomUserSerializer)
 from user_auth.models.custom_user import CustomUser
 from user_auth.models.blacklist import BlackList
 from user_auth.jwt_authentication import JWTAuthentication
 from datetime import datetime, timedelta
-
-
-
-class RegisterView(generics.CreateAPIView):
-    authentication_classes = []
-    permission_classes = []
-    queryset = CustomUser.objects.all()
-    serializer_class = RegisterSerializer
-
-    def post(self, request):
-        user = request.user
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            email = request.data.get("email")
-            subject = 'Welcome to Ecommerce world'
-            message = f'Hi {email}, thank you for registering in ecommerce.'
-            email_from = settings.EMAIL_HOST_USER
-            recipient_list = [email, ]
-            send_mail( subject, message, email_from, recipient_list)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors)
-
-
-class LoginView(generics.GenericAPIView):
-    authentication_classes = []
-    permission_classes = []
-    serializer_class = LoginSerializer
-    queryset = CustomUser.objects.all()
-
-    def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        user = authenticate(email=email, password=password)
-        if user is not None:
-            serializer = self.serializer_class(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"msg": "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@api_view(["POST"])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def logout_view(request):
-    auth_instance = JWTAuthentication()
-    message = auth_instance.authenticate(request, True)
-    return Response(message, status=status.HTTP_200_OK)
 
 
 class UserListView(generics.ListAPIView):
@@ -102,30 +53,3 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
-
-class DeleteUserView(generics.GenericAPIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes= (IsAdminUser,)
-    serializer_class = DeleteSerializer
-
-    def post(self, request):
-        user = request.user
-        email = request.data["email"]        
-        try:
-            user_to_delete = CustomUser.objects.get(email=email)
-        except CustomUser.DoesNotExist as e:
-            raise ValueError("This email does not exist")
-        user_to_delete.delete()
-        return Response({"msg": f"User with this {email} has been deleted"})
-
-
-class CreateMultipleUsers(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data,  headers=headers)
