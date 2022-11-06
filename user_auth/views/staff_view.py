@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from user_auth.serializers import StaffSerializer
+from user_auth.serializers.user_serializers import StaffSerializer
 from user_auth.models.staff import Staff
 
 
