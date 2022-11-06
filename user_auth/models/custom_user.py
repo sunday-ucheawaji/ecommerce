@@ -23,6 +23,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=13)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    otp = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
     user_type = models.CharField(
@@ -44,3 +45,5 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         token = jwt.encode({"full_name": self.full_name(), "email": self.email,
                             "exp": datetime.utcnow() + timedelta(hours=1)}, settings.SECRET_KEY, algorithm="HS256")
         return token
+
+
