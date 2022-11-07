@@ -37,6 +37,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         read_only_fields = ["full_name"]
 
 
+class VerifySerializer(serializers.Serializer):
+    password = serializers.CharField(max_length=30, min_length=4, style={
+                                     "input_type": "password"}, write_only=True)
+    class Meta:
+        model =CustomUser
+        fields = []
+
+
 class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=30, min_length=4, style={
                                      "input_type": "password"}, write_only=True)

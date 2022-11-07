@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
 from user_auth.serializers.user_serializers import CustomUserSerializer
 from user_auth.serializers.auth_serializers import (
-      LoginSerializer, LogoutSerializer, ResetPasswordSerializer, ChangePasswordSerializer, ForgotPasswordSerializer,RegisterSerializer, DeleteSerializer)
+      LoginSerializer, LogoutSerializer, ResetPasswordSerializer, ChangePasswordSerializer, ForgotPasswordSerializer,RegisterSerializer, VerifySerializer, DeleteSerializer)
 from user_auth.models.custom_user import CustomUser
 from user_auth.jwt_authentication import JWTAuthentication
 import random
@@ -34,6 +34,29 @@ class RegisterView(generics.CreateAPIView):
             send_mail( subject, message, email_from, recipient_list)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors)
+
+class VerifyView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = VerifySerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            otp = self.request.query_params.get("otp")
+            try:
+                user = CustomUser.objects.get(otp=otp)
+            except CustomUser.DoesNotExist as e:
+                return Response({"msg": "Incorrect OTP"}, status=status.HTTP_400_BAD_REQUEST)
+            password = serializer.data.get('password')
+            if user.check_password(password):
+                user.is_active = True
+                user.save()
+                return Response({"msg": "Verified! Registration successful"}, status=status.HTTP_201_CREATED)
+            return Response({"error": "Incorrect Password"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            
 
 
 class LoginView(generics.GenericAPIView):
