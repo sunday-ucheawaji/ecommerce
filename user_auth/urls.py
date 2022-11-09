@@ -6,6 +6,7 @@ from user_auth.views import staff_view
 from user_auth.views import auth_view
 
 
+
 urlpatterns = [
     path("", custom_user_views.UserListView.as_view(), name="all_users"),
     path("<int:pk>", custom_user_views.UserDetailView.as_view(), name="user"),
@@ -30,7 +31,9 @@ urlpatterns = [
     path("staff/", staff_view.StaffListView.as_view(), name="staff list"),
     path("staff/<int:pk>", staff_view.StaffDetailView.as_view(),
          name="staff detail"),
-         
+
+
+     
     path("multiple", auth_view.CreateMultipleUsers.as_view(), name="multiple"),
     path("delete", auth_view.DeleteUserView.as_view(), name="delete")
 
