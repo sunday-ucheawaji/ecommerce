@@ -15,6 +15,7 @@ from decouple import config
 import dj_database_url
 import django_heroku
 import os
+from . import simple_jwt_auth
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -50,14 +51,16 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'drf_yasg',
-     "corsheaders",
-    
+    "corsheaders",
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+
     # apps
     "user_auth",
     "product",
     "order",
     "payment"
-    
+
 ]
 
 MIDDLEWARE = [
@@ -72,18 +75,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+simple_jwt_auth.SIMPLE_JWT
 AUTH_USER_MODEL = "user_auth.CustomUser"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.TokenAuthentication',
-        'user_auth.jwt_authentication.JWTAuthentication',
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     'PAGE_SIZE': 10
 }
+
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -150,12 +153,6 @@ AUTH_PASSWORD_VALIDATORS = [
 #  email setting
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
-
 
 
 # Internationalization
