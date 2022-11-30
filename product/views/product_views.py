@@ -4,8 +4,10 @@ from product.serializers import ProductSerializer
 
 
 class ProductListView(generics.ListCreateAPIView):
+    authentication_classes = ()
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    
 
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):

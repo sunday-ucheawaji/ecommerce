@@ -16,3 +16,10 @@ DATABASES = {
 }
 
 ALLOWED_HOSTS += ["*"]
+
+# email
+
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = '80f3c9b6c66f00'
+EMAIL_HOST_PASSWORD = 'c372c0823a508d'
+EMAIL_PORT = '2525'

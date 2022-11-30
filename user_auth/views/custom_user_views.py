@@ -2,6 +2,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -11,14 +12,11 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from user_auth.serializers.user_serializers import (
     CustomUserSerializer)
 from user_auth.models.custom_user import CustomUser
-from user_auth.models.blacklist import BlackList
-from user_auth.jwt_authentication import JWTAuthentication
 from datetime import datetime, timedelta
 
 
 class UserListView(generics.ListAPIView):
-    authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     filter_backends = [DjangoFilterBackend,
@@ -48,8 +46,6 @@ class UserListView(generics.ListAPIView):
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    # authentication_classes = ()
     permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-

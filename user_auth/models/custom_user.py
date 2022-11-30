@@ -24,7 +24,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     otp = models.IntegerField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
     user_type = models.CharField(
         max_length=20, choices=USER_CHOICE, default="customer")
@@ -37,13 +37,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    @property
     def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name.capitalize()} {self.last_name.capitalize()}"
 
     @property
     def token(self):
         token = jwt.encode({"full_name": self.full_name(), "email": self.email,
                             "exp": datetime.utcnow() + timedelta(hours=1)}, settings.SECRET_KEY, algorithm="HS256")
         return token
-
-

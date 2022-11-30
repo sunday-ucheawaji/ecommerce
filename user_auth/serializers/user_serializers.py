@@ -17,6 +17,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "User type cannot be a superuser")
         return value
+    
 
     class Meta:
         model = CustomUser
