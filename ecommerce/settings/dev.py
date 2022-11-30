@@ -2,6 +2,8 @@
 
 from .base import *
 
+CELERY_BROKER_URL = 'amqp://localhost'
+
 DEBUG = config('DEBUG', cast=bool)
 WSGI_APPLICATION = 'ecommerce.wsgi.dev.application'
 DATABASES = {

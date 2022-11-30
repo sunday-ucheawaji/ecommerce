@@ -1,8 +1,6 @@
-from django.contrib.auth import authenticate
 from django.conf import settings
 from django.core.mail import send_mail
 from rest_framework import generics, status, permissions
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication, get_authorization_header
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -10,9 +8,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, OutstandingToken, BlacklistedToken
 from user_auth.serializers.user_serializers import CustomUserSerializer
 from user_auth.serializers.auth_serializers import (
-    RefreshTokenSerializer, ResetPasswordSerializer, ChangePasswordSerializer, ForgotPasswordSerializer, RegisterSerializer, VerifySerializer, DeleteSerializer)
+    ResetPasswordSerializer, ChangePasswordSerializer, ForgotPasswordSerializer, RegisterSerializer, VerifySerializer, DeleteSerializer)
 from user_auth.models.custom_user import CustomUser
 from user_auth.utils import generateOTP
+from user_auth.tasks import send_mails
 
 
 class RegisterView(generics.CreateAPIView):
@@ -33,7 +32,7 @@ class RegisterView(generics.CreateAPIView):
             message = f'Hi {full_name}, thank you for registering in ecommerce. Please confirm your account with this OTP- {otp}'
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [email, ]
-            send_mail(subject, message, email_from, recipient_list)
+            send_mails.delay(subject, message, email_from, recipient_list)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors)
 
@@ -63,12 +62,12 @@ class VerifyView(APIView):
 
             if user.is_active:
                 message = f'Hi {user.full_name}, your account is already verified.'
-                send_mail(subject, message, email_from, recipient_list)
+                send_mails.delay(subject, message, email_from, recipient_list)
                 return Response({"msg": f"{user.full_name}, your account is already verified"}, status=status.HTTP_201_CREATED)
 
             user.is_active = True
             user.save()
-            send_mail(subject, message, email_from, recipient_list)
+            send_mails.delay(subject, message, email_from, recipient_list)
             return Response({"msg": "Verified! Registration successful"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -122,7 +121,7 @@ class ForgotPasswordView(APIView):
         message = f'Hi {full_name},use OTP - {user_otp} to reset password.'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [email, ]
-        send_mail(subject, message, email_from, recipient_list)
+        send_mails.delay(subject, message, email_from, recipient_list)
         return Response({"OTP": f"OTP sent to {email} to reset password"})
 
 
@@ -144,7 +143,7 @@ class ChangePasswordView(APIView):
                 recipient_list = [email, ]
                 subject = 'Password Changed Successful'
                 message = f'Hi {user.full_name}, your have successfully changed your password.'
-                send_mail(subject, message, email_from, recipient_list)
+                send_mails.delay(subject, message, email_from, recipient_list)
                 return Response({"msg": "Password changed successfully!"})
             return Response({"msg": "Incorrect Password"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors)
@@ -178,7 +177,7 @@ class ResetPasswordView(APIView):
             recipient_list = [email, ]
             subject = 'Password Reset Successful'
             message = f'Hi {user.full_name}, your have successfully reset your password.'
-            send_mail(subject, message, email_from, recipient_list)
+            send_mails.delay(subject, message, email_from, recipient_list)
             return Response({"msg": "Password has been reset"}, status=status.HTTP_200_OK)
         return Response(serializer.errors)
 
@@ -216,5 +215,5 @@ class DeleteUserView(generics.GenericAPIView):
         recipient_list = [email_send, ]
         subject = 'Account Deleted'
         message = f'Hi {user.full_name}, your have successfully deleted this account - {email}.'
-        send_mail(subject, message, email_from, recipient_list)
+        send_mails.delay(subject, message, email_from, recipient_list)
         return Response({"msg": f"Account with this email {email}  has been deleted"})
