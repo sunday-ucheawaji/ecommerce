@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 from decouple import config
-import dj_database_url
 import django_heroku
 import os
 from . import simple_jwt_auth
@@ -76,6 +75,7 @@ MIDDLEWARE = [
 ]
 
 simple_jwt_auth.SIMPLE_JWT
+
 AUTH_USER_MODEL = "user_auth.CustomUser"
 
 REST_FRAMEWORK = {
@@ -119,7 +119,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ecommerce.wsgi.application'
+# WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 
 # Database

@@ -10,9 +10,11 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, OutstandingToken, BlacklistedToken
 from user_auth.serializers.user_serializers import CustomUserSerializer
 from user_auth.serializers.auth_serializers import (
-    RefreshTokenSerializer, ResetPasswordSerializer, ChangePasswordSerializer, ForgotPasswordSerializer, RegisterSerializer, VerifySerializer, DeleteSerializer)
+    RefreshTokenSerializer, ResetPasswordSerializer, ChangePasswordSerializer, ForgotPasswordSerializer, RegisterSerializer, RegisterStaffSerializer,  VerifySerializer, DeleteSerializer)
 from user_auth.models.custom_user import CustomUser
+from user_auth.models.staff import Staff
 from user_auth.utils import generateOTP
+import time
 
 
 class RegisterView(generics.CreateAPIView):
@@ -35,6 +37,33 @@ class RegisterView(generics.CreateAPIView):
             recipient_list = [email, ]
             send_mail(subject, message, email_from, recipient_list)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors)
+
+
+class RegisterStaffView(generics.CreateAPIView):
+    permission_classes = ()
+    queryset = Staff.objects.all()
+    serializer_class = RegisterStaffSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            custom_user = serializer.data.get("custom_user")
+            email = custom_user.get("email")
+            full_name = custom_user.get("full_name")
+            try:
+                user = CustomUser.objects.get(email=email)
+                otp = user.otp
+                subject = 'Welcome to Ecommerce world'
+                message = f'Hi {full_name}, thank you for registering in ecommerce. Please confirm your account with this OTP- {otp}'
+                email_from = settings.EMAIL_HOST_USER
+                recipient_list = [email, ]
+                send_mail(subject, message, email_from, recipient_list)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except CustomUser.DoesNotExist as e:
+                return Response({"error": "User does not exist"})
+
         return Response(serializer.errors)
 
 
@@ -68,6 +97,7 @@ class VerifyView(APIView):
 
             user.is_active = True
             user.save()
+            message = f'Hi {user.full_name}, your account has been verified.'
             send_mail(subject, message, email_from, recipient_list)
             return Response({"msg": "Verified! Registration successful"}, status=status.HTTP_201_CREATED)
 
@@ -119,7 +149,7 @@ class ForgotPasswordView(APIView):
         full_name = user_serialized.data.get("full_name")
         user_otp = user_serialized.data.get("otp")
         subject = 'OTP-Reset Password'
-        message = f'Hi {full_name},use OTP - {user_otp} to reset password.'
+        message = f'Hi {full_name}, use OTP - {user_otp} to reset password.'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [email, ]
         send_mail(subject, message, email_from, recipient_list)
@@ -195,26 +225,33 @@ class CreateMultipleUsers(generics.CreateAPIView):
         return Response(serializer.data,  headers=headers)
 
 
-class DeleteUserView(generics.GenericAPIView):
-    authentication_classes = ()
-    permission_classes = ()
+class DeleteUserView(APIView):
+    permission_classes = (IsAdminUser,)
     serializer_class = DeleteSerializer
 
     def post(self, request):
-        email = request.data["email"]
-        if email not in settings.MANAGER:
-            return Response({"msg": "This account cannot is not elegible for this operation"}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            user_to_delete = CustomUser.objects.get(email=email)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            email = serializer.data.get("email")
+            if email in settings.MANAGER:
+                return Response({"msg": "This account cannot be deleted"}, status=status.HTTP_403_FORBIDDEN)
+            try:
+                user_to_delete = CustomUser.objects.get(email=email)
 
-        except CustomUser.DoesNotExist as e:
-            raise ValueError("This email does not exist")
-        user_to_delete.delete()
-        user = request.user
-        email_send = user.email
-        email_from = settings.EMAIL_HOST_USER
-        recipient_list = [email_send, ]
-        subject = 'Account Deleted'
-        message = f'Hi {user.full_name}, your have successfully deleted this account - {email}.'
-        send_mail(subject, message, email_from, recipient_list)
-        return Response({"msg": f"Account with this email {email}  has been deleted"})
+            except CustomUser.DoesNotExist as e:
+                raise ValueError("This account does not exist")
+            user_to_delete.delete()
+            user = request.user
+            email_send = user.email
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email_send, ]
+            subject = 'Account Deleted'
+            message = f'Hi {user.full_name}, your have successfully deleted this account - {email}.'
+            send_mail(subject, message, email_from, recipient_list)
+            return Response({"msg": f"Account with this email {email}  has been deleted"})
+        return Response(serializer.errors)
+
+
+class DeleteAllUsersView(generics.ListAPIView):
+    permission_classes = (IsAdminUser,)
+    pass

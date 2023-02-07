@@ -13,14 +13,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USER_CHOICE = (
         ("customer", "customer"),
         ("supplier", "supplier"),
-        ("staff", "staff"),
-        ("superuser", "superuser")
     )
 
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(_("email address"), unique=True)
     phone = models.CharField(max_length=13)
+    street = models.CharField(
+        max_length=30)
+    city = models.CharField(max_length=30)
+    state = models.CharField(
+        max_length=30)
+    zip_code = models.CharField(
+        max_length=30)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     otp = models.IntegerField(null=True, blank=True)

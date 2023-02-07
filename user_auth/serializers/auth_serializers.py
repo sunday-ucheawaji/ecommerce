@@ -3,6 +3,7 @@ from django.utils.text import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from user_auth.models.custom_user import CustomUser
+from user_auth.models.staff import Staff
 from user_auth.utils import generateOTP
 
 
@@ -37,7 +38,45 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["id", "first_name", "last_name",
-                  "email", "phone",  "user_type", "full_name",  "password", "confirm_password"]
+                  "email", "phone", "street", "city", "state", "zip_code", "user_type", "full_name",  "password", "confirm_password"]
+        read_only_fields = ["full_name"]
+
+
+class RegisterStaffSerializer(serializers.ModelSerializer):
+
+    custom_user = RegisterSerializer()
+
+    def validate(self, data):
+        if data.get("custom_user")["password"] != data.get('custom_user')["confirm_password"]:
+            raise serializers.ValidationError("Passwords do not match")
+        return data
+
+    def create(self, validated_data):
+        custom_user = validated_data.pop("custom_user")
+        custom_user.pop("confirm_password")
+
+        if (validated_data.get("user_type") == "superuser") and (validated_data.get("email") not in settings.MANAGER):
+            raise serializers.ValidationError(
+                f"{validated_data.get('email')} cannot be a superuser")
+        if validated_data.get("email") in settings.MANAGER:
+            user = CustomUser.objects.create_superuser(**custom_user)
+            return user
+        else:
+            user = CustomUser.objects.create_user(**custom_user)
+            otp = generateOTP()
+            user.otp = otp
+            user.save()
+
+            role = validated_data.get('role')
+            manager = validated_data.get('manager')
+            store = validated_data.get('store')
+            staff_user = Staff.objects.create(
+                role=role, manager=manager, store=store, custom_user=user)
+            return staff_user
+
+    class Meta:
+        model = Staff
+        fields = ("role", "custom_user", "manager", "store", "full_name")
         read_only_fields = ["full_name"]
 
 
@@ -45,10 +84,6 @@ class VerifySerializer(serializers.Serializer):
 
     email = serializers.EmailField()
     otp = serializers.IntegerField()
-
-    class Meta:
-        model = CustomUser
-        fields = ["email", "otp"]
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
@@ -90,11 +125,8 @@ class ChangePasswordSerializer(serializers.Serializer):
         return data
 
 
-class DeleteSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CustomUser
-        fields = ["email"]
+class DeleteSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
 
 class RefreshTokenSerializer(serializers.Serializer):

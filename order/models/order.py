@@ -1,6 +1,5 @@
 from django.db import models
-from user_auth.models.customer import Customer
-# from user_auth.models.staff import Staff
+from user_auth.models.custom_user import CustomUser
 from product.models.product_model import Product
 from order.models.store import Store
 
@@ -23,7 +22,7 @@ class Order(models.Model):
     staff = models.ForeignKey(
         "user_auth.Staff", on_delete=models.CASCADE, related_name="orders")
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE, related_name="orders")
+        CustomUser, on_delete=models.CASCADE, related_name="orders")
 
     def __str__(self):
         return f"Order {self.order_status} {self.customer}"
