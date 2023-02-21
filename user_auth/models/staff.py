@@ -19,10 +19,6 @@ class Staff(models.Model):
 
     role = models.CharField(
         max_length=25, choices=EMPLOYEE_TYPES, default=STANDARD)
-    street = models.CharField(max_length=30)
-    city = models.CharField(max_length=30)
-    state = models.CharField(max_length=30)
-    zip_code = models.CharField(max_length=30)
     custom_user = models.OneToOneField(
         CustomUser, unique=True, on_delete=models.CASCADE)
     manager = models.ForeignKey(

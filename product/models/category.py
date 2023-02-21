@@ -1,5 +1,4 @@
 from django.db import models
-# from product.models.product_model import Product
 from order.models.store import Store
 
 
@@ -8,6 +7,9 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category_name
+
+    class Meta:
+        verbose_name_plural = "categories"
 
 
 class Brand(models.Model):

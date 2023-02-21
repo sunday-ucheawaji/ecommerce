@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 
 class UserListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     filter_backends = [DjangoFilterBackend,
@@ -46,6 +46,30 @@ class UserListView(generics.ListAPIView):
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+
+class CustomerListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = CustomUser.objects.filter(user_type="customer")
+    serializer_class = CustomUserSerializer
+
+
+class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = CustomUser.objects.filter(user_type="customer")
+    serializer_class = CustomUserSerializer
+
+
+class SupplierListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = CustomUser.objects.filter(user_type="supplier")
+    serializer_class = CustomUserSerializer
+
+
+class SupplierDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = CustomUser.objects.filter(user_type="supplier")
     serializer_class = CustomUserSerializer

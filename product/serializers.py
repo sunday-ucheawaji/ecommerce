@@ -2,26 +2,30 @@ from rest_framework import serializers
 from product.models.product_model import Product
 from product.models.category import Category, Brand, Stock
 from order.serializers import OrderItemSerializer
+from product.models.review import Review
 
 
-class StockSerializer(serializers.ModelSerializer):
-
-    # product = serializers.StringRelatedField(required=True, read_only=False)
-    store = serializers.StringRelatedField()
+class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Stock
-        fields = ["id", "quantity", "product", "store"]
+        models = Review
+        fields = "__all__"
 
 
 class ProductSerializer(serializers.ModelSerializer):
-
-    stock = StockSerializer(required=True)
 
     class Meta:
         model = Product
         fields = ["product_name", "model_year", "list_price", "product_image",
                   "brand", "category", "supplier", "stock"]
+        read_only_fields = ["stock"]
+
+
+class StockSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Stock
+        fields = ["id", "quantity", "product", "store"]
 
 
 class CategorySerializer(serializers.ModelSerializer):

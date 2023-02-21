@@ -75,6 +75,7 @@ MIDDLEWARE = [
 ]
 
 simple_jwt_auth.SIMPLE_JWT
+
 AUTH_USER_MODEL = "user_auth.CustomUser"
 
 REST_FRAMEWORK = {
@@ -118,7 +119,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 
 # Password validation
