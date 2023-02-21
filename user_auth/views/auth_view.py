@@ -41,7 +41,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class RegisterStaffView(generics.CreateAPIView):
-    permission_classes = ()
+    permission_classes = (IsAdminUser,)
     queryset = Staff.objects.all()
     serializer_class = RegisterStaffSerializer
 
@@ -82,10 +82,6 @@ class VerifyView(APIView):
             except CustomUser.DoesNotExist as e:
                 return Response({"msg": "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
-            otp = serializer.data.get("otp")
-            if user.otp != otp:
-                return Response({"msg": "OTP is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
-
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [email, ]
             subject = 'Verification Successful'
@@ -94,6 +90,10 @@ class VerifyView(APIView):
                 message = f'Hi {user.full_name}, your account is already verified.'
                 send_mail(subject, message, email_from, recipient_list)
                 return Response({"msg": f"{user.full_name}, your account is already verified"}, status=status.HTTP_201_CREATED)
+
+            otp = serializer.data.get("otp")
+            if user.otp != otp:
+                return Response({"msg": "OTP is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
 
             user.is_active = True
             user.save()
@@ -156,6 +156,39 @@ class ForgotPasswordView(APIView):
         return Response({"OTP": f"OTP sent to {email} to reset password"})
 
 
+class ResetPasswordView(APIView):
+    authentication_classes = ()
+    permission_classes = ()
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            email = serializer.data.get("email")
+            password = serializer.data.get("password")
+            otp = serializer.data.get("otp")
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist as e:
+                return Response({"msg": "This email does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if otp != user.otp:
+                return Response({"msg": "Incorrect OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user.check_password(password):
+                return Response({"message": "This is an old Password! Set new password"})
+            user.set_password(password)
+            user.save()
+            email = user.email
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            subject = 'Password Reset Successful'
+            message = f'Hi {user.full_name}, your have successfully reset your password.'
+            send_mail(subject, message, email_from, recipient_list)
+            return Response({"msg": "Password has been reset"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors)
+
+
 class ChangePasswordView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
@@ -177,39 +210,6 @@ class ChangePasswordView(APIView):
                 send_mail(subject, message, email_from, recipient_list)
                 return Response({"msg": "Password changed successfully!"})
             return Response({"msg": "Incorrect Password"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors)
-
-
-class ResetPasswordView(APIView):
-    authentication_classes = ()
-    permission_classes = ()
-    serializer_class = ResetPasswordSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            email = serializer.data.get("email")
-            password = serializer.data.get("password")
-            otp = serializer.data.get("otp")
-            try:
-                user = CustomUser.objects.get(email=email)
-            except CustomUser.DoesNotExist as e:
-                return Response({"msg": "This email does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-            if otp != user.otp:
-                return Response({"msg": "Incorrect OTP"}, status=status.HTTP_400_BAD_REQUEST)
-
-            if user.check_password(password):
-                return Response({"mesg": "This is an old Password! Set new password"})
-            user.set_password(password)
-            user.save()
-            email = user.email
-            email_from = settings.EMAIL_HOST_USER
-            recipient_list = [email, ]
-            subject = 'Password Reset Successful'
-            message = f'Hi {user.full_name}, your have successfully reset your password.'
-            send_mail(subject, message, email_from, recipient_list)
-            return Response({"msg": "Password has been reset"}, status=status.HTTP_200_OK)
         return Response(serializer.errors)
 
 

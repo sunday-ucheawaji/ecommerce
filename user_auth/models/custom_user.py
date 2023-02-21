@@ -13,6 +13,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USER_CHOICE = (
         ("customer", "customer"),
         ("supplier", "supplier"),
+        ("staff", "staff")
     )
 
     first_name = models.CharField(max_length=30)

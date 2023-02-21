@@ -1,8 +1,23 @@
 from rest_framework import serializers
 from order.models.order import Order, OrderItem
 from order.models.store import Store
-# from product.serializers import StockSerializer
-# from user_auth.serializers import StaffSerializer
+from order.models.cart import Cart, CartItem
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CartItem
+        fields = "__all__"
+
+
+class CartSerializer(serializers.ModelSerializer):
+
+    cart_items = CartItemSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Cart
+        fields = "__all__"
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

@@ -17,11 +17,11 @@ class Product(models.Model):
         upload_to=user_directory_path, blank=True, null=True)
 
     brand = models.ForeignKey(
-        Brand, on_delete=models.CASCADE, related_name="products")
+        Brand, on_delete=models.CASCADE, null=False, blank=False, related_name="products")
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name="products")
+        Category, null=False, blank=False, on_delete=models.CASCADE, related_name="products")
     supplier = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="products")
+        CustomUser, null=False, blank=False, on_delete=models.CASCADE, related_name="products")
 
     def __str__(self):
         return self.product_name
