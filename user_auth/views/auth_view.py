@@ -85,7 +85,7 @@ class VerifyView(APIView):
 
             if user.is_active:
                 message = f'Hi {user.full_name}, your account is already verified.'
-                send_mails.delay(subject, message, email_from, recipient_list)
+                send_mail(subject, message, email_from, recipient_list)
                 return Response({"msg": f"{user.full_name}, your account is already verified"}, status=status.HTTP_201_CREATED)
 
             otp = serializer.data.get("otp")
@@ -149,7 +149,7 @@ class ForgotPasswordView(APIView):
         message = f'Hi {full_name}, use OTP - {user_otp} to reset password.'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [email, ]
-        send_mails.delay(subject, message, email_from, recipient_list)
+        send_mail(subject, message, email_from, recipient_list)
         return Response({"OTP": f"OTP sent to {email} to reset password"})
 
 
@@ -204,7 +204,7 @@ class ChangePasswordView(APIView):
                 recipient_list = [email, ]
                 subject = 'Password Changed Successful'
                 message = f'Hi {user.full_name}, your have successfully changed your password.'
-                send_mails.delay(subject, message, email_from, recipient_list)
+                send_mail(subject, message, email_from, recipient_list)
                 return Response({"msg": "Password changed successfully!"})
             return Response({"msg": "Incorrect Password"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors)
