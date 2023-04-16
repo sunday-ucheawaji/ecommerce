@@ -29,7 +29,10 @@ class RegisterView(generics.CreateAPIView):
             serializer.save()
             email = serializer.data.get("email")
             full_name = serializer.data.get("full_name")
-            user = CustomUser.objects.get(email=email)
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                raise ValueError()
             otp = user.otp
             subject = 'Welcome to Ecommerce world'
             message = f'Hi {full_name}, thank you for registering in ecommerce. Please confirm your account with this OTP- {otp}'

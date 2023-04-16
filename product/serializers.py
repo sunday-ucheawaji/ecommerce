@@ -8,7 +8,7 @@ from product.models.review import Review
 class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
-        models = Review
+        model = Review
         fields = "__all__"
 
 

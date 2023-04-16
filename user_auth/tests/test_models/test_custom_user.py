@@ -32,6 +32,22 @@ class CustomUserTest(TestCase):
         field_label = self.user._meta.get_field("phone")
         self.assertEqual(field_label.max_length, 13)
 
+    def test_street_max_length(self):
+        field_label = self.user._meta.get_field("street")
+        self.assertEqual(field_label.max_length, 30)
+
+    def test_city_max_length(self):
+        field_label = self.user._meta.get_field("city")
+        self.assertEqual(field_label.max_length, 30)
+
+    def test_state_max_length(self):
+        field_label = self.user._meta.get_field("state")
+        self.assertEqual(field_label.max_length, 30)
+
+    def test_zip_code_max_length(self):
+        field_label = self.user._meta.get_field("zip_code")
+        self.assertEqual(field_label.max_length, 30)
+
     def test_is_staff_is_false(self):
         field_label = self.user._meta.get_field("is_staff")
         self.assertFalse(field_label.default)
@@ -42,7 +58,7 @@ class CustomUserTest(TestCase):
 
     def test_is_active_is_true(self):
         field_label = self.user._meta.get_field("is_active")
-        self.assertTrue(field_label.default)
+        self.assertFalse(field_label.default)
 
     def test_date_joined_is_now(self):
         field_label = self.user._meta.get_field("date_joined")
@@ -53,4 +69,4 @@ class CustomUserTest(TestCase):
         self.assertEqual(field_label.default, "customer")
 
     def test_full_name(self):
-        self.assertEqual(self.user.full_name(), "sunday uche")
+        self.assertEqual(self.user.full_name, "Sunday Uche")

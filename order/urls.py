@@ -1,6 +1,7 @@
 from django.urls import path
 from order.views import order_views
 from order.views import store_views
+from order.views import cart_views
 
 
 urlpatterns = [
@@ -13,5 +14,13 @@ urlpatterns = [
     path("store", store_views.StoreListView.as_view(),
          name="Store List"),
     path("store/<int:pk>", store_views.StoreDetailView.as_view(),
-         name="Store Detail")
+         name="Store Detail"),
+    path("cart", cart_views.CartListView.as_view(),
+         name="Cart List"),
+    path("cart/<int:pk>", cart_views.CartDetailView.as_view(),
+         name="Cart Detail"),
+    path("cart-item", cart_views.CartItemListView.as_view(),
+         name="Cart Item List"),
+    path("cart-item/<int:pk>", cart_views.CartItemDetailView.as_view(),
+         name="Cart Item Detail"),
 ]

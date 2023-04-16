@@ -7,7 +7,7 @@ import dj_database_url
 DATABASES = {'default': dj_database_url.config(default=config('DATABASE_URL'))}
 ALLOWED_HOSTS += ["*"]
 WSGI_APPLICATION = 'ecommerce.wsgi.prod.application'
-DEBUG = True
+DEBUG = False
 
 
 # email
